@@ -47,3 +47,29 @@ export async function saveIngredient(formData: FormData) {
   if (error) redirect("/dashboard/inventory?error=save");
   redirect("/dashboard/inventory?saved=1");
 }
+
+ 
+export async function deleteIngredient(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles").select("role,is_active").eq("id", user.id).maybeSingle();
+  if (!profile?.is_active) redirect("/login?error=inactive");
+  if (profile.role !== "admin" && profile.role !== "manager") {
+    redirect("/dashboard/inventory?error=permission");
+  }
+
+  const ingredientId = String(formData.get("id") ?? "").trim();
+  if (!ingredientId) redirect("/dashboard/inventory?error=delete");
+
+  const { error } = await supabase.rpc("deactivate_ingredient", {
+    p_ingredient_id: ingredientId,
+  });
+  if (error) {
+    const code = error.message.toLowerCase().includes("active recipes") ? "inuse" : "delete";
+    redirect(`/dashboard/inventory?error=${code}`);
+  }
+  redirect("/dashboard/inventory?deleted=1");
+}
