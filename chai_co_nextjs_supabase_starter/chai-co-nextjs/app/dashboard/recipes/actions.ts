@@ -18,8 +18,9 @@ export async function saveProductRecipe(formData: FormData) {
   const productRaw = String(formData.get("product_id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const category = String(formData.get("category") ?? "Other").trim() || "Other";
-  const price = Number(formData.get("selling_price") ?? NaN);
-  if (!name || !Number.isFinite(price) || price < 0) {
+  const priceRaw = String(formData.get("selling_price") ?? "").trim();
+  const price = Number(priceRaw);
+  if (!name || !priceRaw || !Number.isFinite(price) || price < 0) {
     redirect(productRaw ? `/dashboard/recipes/${productRaw}?error=validation` : "/dashboard/recipes?error=validation");
   }
 
