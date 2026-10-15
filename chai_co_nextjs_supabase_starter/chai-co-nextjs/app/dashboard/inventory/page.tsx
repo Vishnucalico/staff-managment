@@ -75,7 +75,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
               <div className="field"><label>Minimum stock</label><input name="minimum_stock" type="number" min="0" step="0.001" defaultValue={i.minimum_stock} required /></div>
               <div className="field"><label>Cost per base unit (₹)</label><input name="unit_cost" type="number" min="0" step="0.00001" defaultValue={i.unit_cost} required /></div>
               <div className="full"><p className="footnote">Current stock: {i.current_stock} {i.base_unit}. To protect the ledger, this form does not change on-hand quantity. A base unit cannot be changed while recipes use this ingredient.</p><button className="btn" type="submit">Save details</button></div>
-            </form></details></td>
+            </form></details></td><td><ConfirmDeleteForm action={deleteIngredient} id={i.id} label="Delete" confirmMessage={`Delete ingredient “${i.name}”? It will be hidden from active inventory, but historical records remain.`} /></td>
           </tr>;
         })}
         {!rows.length && <tr><td colSpan={9} className="empty">No ingredients added yet. Add the first ingredient above.</td></tr>}
