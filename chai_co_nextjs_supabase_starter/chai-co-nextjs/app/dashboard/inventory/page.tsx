@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { saveIngredient } from "./actions";
 
 const inr = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
+const unitCostLabel = (value: number) => "₹" + Number(value).toLocaleString("en-IN", { maximumFractionDigits: 5 });
 type PageProps = { searchParams: Promise<{ saved?: string; error?: string }> };
 
 function feedback(saved?: string, error?: string) {
@@ -58,7 +59,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
           const low = Number(i.current_stock) <= Number(i.minimum_stock);
           return <tr key={i.id}>
             <td><strong>{i.name}</strong></td><td>{i.category}</td><td>{i.current_stock} {i.base_unit}</td><td>{i.minimum_stock} {i.base_unit}</td>
-            <td>{inr(Number(i.unit_cost))} / {i.base_unit}</td><td>{inr(Number(i.current_stock) * Number(i.unit_cost))}</td>
+            <td>{unitCostLabel(Number(i.unit_cost))} / {i.base_unit}</td><td>{inr(Number(i.current_stock) * Number(i.unit_cost))}</td>
             <td><span className={`tag ${low ? "red" : "green"}`}>{low ? "Low stock" : "In stock"}</span></td>
             <td><details><summary className="muted">Edit details</summary><form action={saveIngredient} className="form-grid" style={{minWidth: 320, paddingTop: 12}}>
               <input type="hidden" name="ingredient_id" value={i.id} />
