@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { saveProductRecipe } from "./actions";
+import { deleteProduct, saveProductRecipe } from "./actions";
+import { ConfirmDeleteForm } from "../confirm-delete-form";
 
 const inr = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
-type PageProps = { searchParams: Promise<{ saved?: string; error?: string }> };
+type PageProps = { searchParams: Promise<{ saved?: string; deleted?: string; error?: string }> };
 
 export default async function RecipesPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -27,11 +28,13 @@ export default async function RecipesPage({ searchParams }: PageProps) {
     validation: "Check the menu item name and selling price.",
     quantity: "Recipe quantities must be positive numbers.",
     save: "Could not save the menu item. Check that the catalogue migration has been applied and all selected ingredients are active.",
+    delete: "Could not delete the menu item. Confirm the catalogue migration has been applied.",
   };
 
   return <>
     <div className="page-head"><div><div className="eyebrow">CHAI &amp; CO. / MENU</div><h2>Recipes &amp; costing</h2><p>Manage selling prices and recipe quantities; cost and food-cost percentage are calculated from ingredient unit costs.</p></div></div>
     {params.saved && <p className="success">Menu item created. Add its ingredients on the recipe editor page.</p>}
+    {params.deleted && <p className="success">Menu item deleted from the active menu. Historical records were kept.</p> }
     {params.error && <p className="error">{errorText[params.error] ?? "Something went wrong. Please try again."}</p>}
     <div className="stats">
       <div className="stat"><div className="stat-label">Menu items</div><div className="stat-value">{productRows.length}</div></div>
@@ -50,13 +53,13 @@ export default async function RecipesPage({ searchParams }: PageProps) {
     </section>
     <section className="panel">
       <div className="panel-head"><div><h3>Menu and recipe costs</h3><p>Historical sale cost snapshots are not changed when a recipe is edited.</p></div></div>
-      <div className="table-wrap"><table><thead><tr><th>Menu item</th><th>Category</th><th>Selling price</th><th>Recipe cost</th><th>Gross profit / item</th><th>Food cost</th><th>Recipe lines</th><th></th></tr></thead><tbody>
+      <div className="table-wrap"><table><thead><tr><th>Menu item</th><th>Category</th><th>Selling price</th><th>Recipe cost</th><th>Gross profit / item</th><th>Food cost</th><th>Recipe lines</th><th>Actions</th></tr></thead><tbody>
         {productRows.map(p => {
           const lines = recipeRows.filter(r => r.product_id === p.id);
           const cost = costByProduct(p.id);
           const price = Number(p.selling_price);
           const pct = price ? cost / price * 100 : 0;
-          return <tr key={p.id}><td><strong>{p.name}</strong></td><td>{p.category}</td><td>{inr(price)}</td><td>{lines.length ? inr(cost) : <span className="tag amber">Not costed</span>}</td><td>{inr(price - cost)}</td><td>{lines.length ? `${pct.toFixed(1)}%` : "—"}</td><td>{lines.length}</td><td><Link className="btn" href={`/dashboard/recipes/${p.id}`}>Edit recipe</Link></td></tr>;
+          return <tr key={p.id}><td><strong>{p.name}</strong></td><td>{p.category}</td><td>{inr(price)}</td><td>{lines.length ? inr(cost) : <span className="tag amber">Not costed</span>}</td><td>{inr(price - cost)}</td><td>{lines.length ? `${pct.toFixed(1)}%` : "—"}</td><td>{lines.length}</td><td><div className="actions"><Link className="btn" href={`/dashboard/recipes/${p.id}`}>Edit recipe</Link><ConfirmDeleteForm action={deleteProduct} id={p.id} label="Delete" confirmMessage={`Delete menu item “${p.name}”? It will be removed from the active menu, while historical records remain.`} /></div></td></tr>;
         })}
         {!productRows.length && <tr><td colSpan={8} className="empty">No menu items yet. Add your first item above.</td></tr>}
       </tbody></table></div>
