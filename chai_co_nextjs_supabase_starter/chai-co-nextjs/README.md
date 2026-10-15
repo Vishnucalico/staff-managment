@@ -42,6 +42,7 @@ The base schema must already exist (from the separately supplied `supabase_phase
 
 1. `supabase/migrations/202610140001_record_sale.sql` — atomic sales posting.
 2. `supabase/migrations/202610150001_catalogue_management.sql` — trusted ingredient, product and recipe editing.
+3. `supabase/migrations/202610150002_catalogue_delete.sql` — role-checked soft deletion for ingredients and menu items.
 
 Do not rerun a migration blindly after an error. Keep a backup and resolve the error before proceeding. These migrations have not been executed against your live Supabase project by this code change.
 
@@ -51,6 +52,7 @@ The sales RPC uses database product prices, checks recipe stock, locks ingredien
 - Inventory: Admin/Manager can create ingredients with a base unit, opening stock, minimum stock, cost per base unit and optional supplier. Opening stock is recorded in `stock_movements`.
 - Editing an ingredient changes its descriptive fields, minimum stock, supplier and unit cost; it does not directly change on-hand quantity. This avoids bypassing the stock ledger. The base unit cannot be changed while a recipe uses the ingredient.
 - Recipes & costing: Admin/Manager can create a menu item, then open its recipe editor to map ingredient quantities per serving. Leave a quantity blank or set it to zero to remove that ingredient from the recipe.
+- Delete options: Admin/Manager can deactivate ingredients and menu items after a confirmation prompt. This is a soft delete, preserving sales, recipes and stock history. Ingredients used by active menu recipes must first be removed from those recipes.
 - Use consistent base units: grams (`g`), millilitres (`ml`), pieces (`pcs`) or portion. For example, 115 g of fries is `quantity_per_serving = 115` when the ingredient's base unit is `g`.
 - Historical sales retain saved cost snapshots when a recipe or ingredient cost changes.
 
