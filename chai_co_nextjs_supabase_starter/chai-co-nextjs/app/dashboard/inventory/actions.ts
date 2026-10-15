@@ -18,13 +18,17 @@ export async function saveIngredient(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const category = String(formData.get("category") ?? "Other").trim() || "Other";
   const baseUnit = String(formData.get("base_unit") ?? "");
-  const openingStock = Number(formData.get("opening_stock") ?? 0);
-  const minimumStock = Number(formData.get("minimum_stock") ?? 0);
-  const unitCost = Number(formData.get("unit_cost") ?? 0);
+  const openingStockRaw = String(formData.get("opening_stock") ?? "").trim();
+  const minimumStockRaw = String(formData.get("minimum_stock") ?? "").trim();
+  const unitCostRaw = String(formData.get("unit_cost") ?? "").trim();
+  const openingStock = Number(openingStockRaw);
+  const minimumStock = Number(minimumStockRaw);
+  const unitCost = Number(unitCostRaw);
   const supplierRaw = String(formData.get("supplier_id") ?? "").trim();
   const ingredientRaw = String(formData.get("ingredient_id") ?? "").trim();
 
   if (!name || !["g", "ml", "pcs", "portion"].includes(baseUnit)
+    || !openingStockRaw || !minimumStockRaw || !unitCostRaw
     || ![openingStock, minimumStock, unitCost].every(n => Number.isFinite(n) && n >= 0)) {
     redirect("/dashboard/inventory?error=validation");
   }
