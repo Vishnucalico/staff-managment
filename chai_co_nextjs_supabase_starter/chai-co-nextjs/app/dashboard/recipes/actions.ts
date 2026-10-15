@@ -32,7 +32,8 @@ export async function saveProductRecipe(formData: FormData) {
     if (!Number.isFinite(quantity) || quantity < 0) {
       redirect(productRaw ? `/dashboard/recipes/${productRaw}?error=quantity` : "/dashboard/recipes?error=quantity");
     }
-    if (quantity === 0) continue; // A zero quantity removes this ingredient from the saved recipe.\n    items.push({ ingredient_id: key.slice(4), quantity_per_serving: quantity });
+    if (quantity === 0) continue; // A zero quantity removes this ingredient from the saved recipe.
+    items.push({ ingredient_id: key.slice(4), quantity_per_serving: quantity });
   }
 
   const { data: productId, error } = await supabase.rpc("save_product_recipe", {
