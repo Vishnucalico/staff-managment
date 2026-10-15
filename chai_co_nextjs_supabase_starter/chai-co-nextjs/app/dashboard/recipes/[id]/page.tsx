@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { saveProductRecipe } from "../actions";
 
 const inr = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
+const unitCostLabel = (value: number) => "₹" + Number(value).toLocaleString("en-IN", { maximumFractionDigits: 5 });
 type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; error?: string }> };
 
 export default async function RecipeEditorPage({ params, searchParams }: PageProps) {
@@ -57,7 +58,7 @@ export default async function RecipeEditorPage({ params, searchParams }: PagePro
                 <td><strong>{ingredient.name}</strong><div className="footnote">{ingredient.category}</div></td>
                 <td>{ingredient.base_unit}</td>
                 <td>{ingredient.current_stock} {ingredient.base_unit}</td>
-                <td>{inr(Number(ingredient.unit_cost))} / {ingredient.base_unit}</td>
+                <td>{unitCostLabel(Number(ingredient.unit_cost))} / {ingredient.base_unit}</td>
                 <td><input className="qty-input" aria-label={`Quantity of ${ingredient.name} per serving`} name={`qty_${ingredient.id}`} type="number" min="0" step="0.001" defaultValue={qty || ""} placeholder="0" /></td>
                 <td>{inr(qty * Number(ingredient.unit_cost))}</td>
               </tr>;
