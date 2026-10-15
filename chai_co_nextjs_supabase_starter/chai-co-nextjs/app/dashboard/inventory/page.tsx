@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { saveIngredient } from "./actions";
+import { deleteIngredient, saveIngredient } from "./actions";
+import { ConfirmDeleteForm } from "../confirm-delete-form";
 
 const inr = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
 const unitCostLabel = (value: number) => "₹" + Number(value).toLocaleString("en-IN", { maximumFractionDigits: 5 });
-type PageProps = { searchParams: Promise<{ saved?: string; error?: string }> };
+type PageProps = { searchParams: Promise<{ saved?: string; deleted?: string; error?: string }> };
 
 function feedback(saved?: string, error?: string) {
   if (saved) return <p className="success">Ingredient details saved.</p>;
@@ -12,6 +13,8 @@ function feedback(saved?: string, error?: string) {
     permission: "Only an Admin or Manager can change ingredients.",
     validation: "Check the name, unit, and non-negative numeric values.",
     save: "Could not save the ingredient. Check that the catalogue migration has been applied and the supplier is active.",
+    delete: "Could not delete this ingredient. Confirm the catalogue migration has been applied.",
+    inuse: "This ingredient is used by an active recipe. Remove it from active recipes before deleting it.",
   };
   return <p className="error">{messages[error] ?? "Something went wrong. Please try again."}</p>;
 }
@@ -30,6 +33,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
 
   return <>
     <div className="page-head"><div><div className="eyebrow">CHAI &amp; CO. / STOCK</div><h2>Inventory</h2><p>Manage ingredient details, base units, costs and minimum stock levels.</p></div></div>
+    {params.deleted && <p className="success">Ingredient deleted from the active catalogue. Historical records were kept.</p>}
     {feedback(params.saved, params.error)}
     <div className="stats">
       <div className="stat"><div className="stat-label">Ingredients</div><div className="stat-value">{rows.length}</div></div>
@@ -54,7 +58,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     </section>
     <section className="panel">
       <div className="panel-head"><div><h3>Ingredient stock</h3><p>Current quantity changes should be recorded through a stock or purchase workflow, not a catalogue edit.</p></div></div>
-      <div className="table-wrap"><table><thead><tr><th>Ingredient</th><th>Category</th><th>On hand</th><th>Minimum</th><th>Cost / unit</th><th>Stock value</th><th>Status</th><th>Details</th></tr></thead><tbody>
+      <div className="table-wrap"><table><thead><tr><th>Ingredient</th><th>Category</th><th>On hand</th><th>Minimum</th><th>Cost / unit</th><th>Stock value</th><th>Status</th><th>Details</th><th>Delete</th></tr></thead><tbody>
         {rows.map(i => {
           const low = Number(i.current_stock) <= Number(i.minimum_stock);
           return <tr key={i.id}>
@@ -74,7 +78,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
             </form></details></td>
           </tr>;
         })}
-        {!rows.length && <tr><td colSpan={8} className="empty">No ingredients added yet. Add the first ingredient above.</td></tr>}
+        {!rows.length && <tr><td colSpan={9} className="empty">No ingredients added yet. Add the first ingredient above.</td></tr>}
       </tbody></table></div>
     </section>
   </>;
