@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { saveProductRecipe } from "../actions";
+import { deleteProduct, saveProductRecipe } from "../actions";
+import { ConfirmDeleteForm } from "../../confirm-delete-form";
 
 const inr = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
 const unitCostLabel = (value: number) => "₹" + Number(value).toLocaleString("en-IN", { maximumFractionDigits: 5 });
@@ -66,7 +67,7 @@ export default async function RecipeEditorPage({ params, searchParams }: PagePro
             {!ingredientRows.length && <tr><td colSpan={6} className="empty">Add ingredients in Inventory before building a recipe.</td></tr>}
           </tbody></table></div>
           <div className="notice" style={{marginTop: 16}}><strong>Stock and history:</strong> saving changes the current recipe used for future sales. Past sales retain their saved cost snapshots. The sales database function will reject a sale if the mapped ingredients do not have enough stock.</div>
-          <div className="actions"><button className="btn primary" type="submit">Save menu item and recipe</button><Link className="btn" href="/dashboard/recipes">Cancel</Link></div>
+          <div className="actions"><button className="btn primary" type="submit">Save menu item and recipe</button><Link className="btn" href="/dashboard/recipes">Cancel</Link><ConfirmDeleteForm action={deleteProduct} id={product.id} label="Delete menu item" confirmMessage={`Delete menu item “${product.name}”? It will be removed from the active menu, while historical records remain.`} /></div>
         </form>
       </div>
     </section>
