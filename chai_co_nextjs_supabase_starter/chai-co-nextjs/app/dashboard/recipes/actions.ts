@@ -50,3 +50,26 @@ export async function saveProductRecipe(formData: FormData) {
   }
   redirect(`/dashboard/recipes/${productId}?saved=1`);
 }
+
+ 
+export async function deleteProduct(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles").select("role,is_active").eq("id", user.id).maybeSingle();
+  if (!profile?.is_active) redirect("/login?error=inactive");
+  if (profile.role !== "admin" && profile.role !== "manager") {
+    redirect("/dashboard/recipes?error=permission");
+  }
+
+  const productId = String(formData.get("id") ?? "").trim();
+  if (!productId) redirect("/dashboard/recipes?error=delete");
+
+  const { error } = await supabase.rpc("deactivate_product", {
+    p_product_id: productId,
+  });
+  if (error) redirect("/dashboard/recipes?error=delete");
+  redirect("/dashboard/recipes?deleted=1");
+}
