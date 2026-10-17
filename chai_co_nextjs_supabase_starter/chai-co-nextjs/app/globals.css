@@ -19,6 +19,11 @@
 .login-remember{display:flex;align-items:center;gap:9px;color:#eee8e0}
 .login-remember input{width:15px;height:15px;accent-color:#d7a66c}
 .login-help{color:#e6b66e;font-size:10px;text-align:right}
+
+.login-eye{border:0;background:transparent;color:#eee6dc;padding:4px;display:grid;place-items:center;flex-shrink:0}
+.login-eye svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7}
+.login-help{border:0;background:transparent;color:#e6b66e;padding:4px 0;font:inherit;font-size:11px;cursor:pointer}
+.login-help-message{margin:-4px 0 3px;color:#e6b66e;font-size:11px}
 .login-submit{width:100%;height:48px;border:0;border-radius:15px;background:linear-gradient(110deg,#d4a166,#e2b476);color:#1b140d;font-weight:800;font-size:14px;box-shadow:0 8px 24px #0003;transition:transform .15s,filter .15s}
 .login-submit:hover{filter:brightness(1.06);transform:translateY(-1px)}
 .login-submit span{font-size:20px;vertical-align:-1px;margin-left:5px}
