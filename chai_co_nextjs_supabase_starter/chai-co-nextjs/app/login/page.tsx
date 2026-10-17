@@ -1,4 +1,5 @@
 import { signIn } from "./actions";
+import LoginForm from "./login-form";
 
 type Props = { searchParams: Promise<{ error?: string }> };
 
@@ -12,20 +13,16 @@ export default async function LoginPage({ searchParams }: Props) {
 
   return (
     <main className="login-wrap">
-      <section className="login-card">
-        <div className="brand">
-          <div className="brand-mark">C<span style={{fontSize: 11}}>&amp;</span></div>
-          <div><h1>Chai &amp; Co.</h1><p>Shop management</p></div>
+      <section className="login-card" aria-labelledby="login-title">
+        <div className="login-brand">
+          <div className="login-wordmark">Chai &amp; Co.</div>
+          <div className="login-tagline">Brewing better days</div>
         </div>
-        <h2>Welcome back</h2>
-        <p>Sign in to manage your shop operations.</p>
-        {error && messages[error] && <div className="notice error" role="alert">{messages[error]}</div>}
-        <form action={signIn} className="login-form">
-          <div className="field"><label htmlFor="email">Email address</label><input id="email" name="email" type="email" autoComplete="username" required /></div>
-          <div className="field"><label htmlFor="password">Password</label><input id="password" name="password" type="password" autoComplete="current-password" required /></div>
-          <button className="btn primary" type="submit">Sign in</button>
-        </form>
-        <p className="footnote">Accounts are provisioned by the shop Admin. Public sign-up is intentionally not provided in this starter.</p>
+        <h1 id="login-title">Welcome back</h1>
+        <p className="login-subtitle">Sign in to your team workspace.</p>
+        {error && messages[error] && <div className="login-error" role="alert">{messages[error]}</div>}
+        <LoginForm action={signIn} />
+        <p className="login-secure"><span aria-hidden="true">●</span> Secure access for authorised team members</p>
       </section>
     </main>
   );
